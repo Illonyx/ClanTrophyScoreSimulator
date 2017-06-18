@@ -44,8 +44,10 @@ class Clan:
 		
 
 	def printDefault(self):
+		copy=list(self.overriddenClan)
+		copy.sort(key=operator.attrgetter('trophies'), reverse=True)
 		rank=0
-		for player in self.overriddenClan:
+		for player in copy:
 			rank += 1
 			print(str(rank) + ". " + player.toString())
 
@@ -62,6 +64,19 @@ class Clan:
 			self.overriddenClan.remove(self.overriddenClan[-1])
 		self.overriddenClan.append(player)
 		self.overriddenClan.sort(key = operator.attrgetter('trophies'), reverse=True)
+
+	def findPlayer(self, playerName):
+		for player in self.overriddenClan:
+			if player.name == playerName:
+				return player
+		print("Player with following name has not been found ! :" + playerName)
+		return None
+
+	def updatePlayer(self,playerName, trophyValue):
+		if self.findPlayer(playerName) != None:
+			self.findPlayer(playerName).trophies=trophyValue
+			self.overriddenClan.sort(key = operator.attrgetter('trophies'), reverse=True)
+
 
 	def calculateClanScore(self, playersList, considerateOnlyBest=False):
 		index=0

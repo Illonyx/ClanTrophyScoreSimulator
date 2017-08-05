@@ -1,8 +1,9 @@
 from clanIO import *
+from clanmodel import *
 
-#Clans path
-SR_CLAN_MEMBERS_DEFAULT="members-sr-default.json"
-SR_CLAN_MEMBERS_OVERRIDEN="members-sr-overriden.json"
+#sangRoyaleClans path
+SR_CLAN_MEMBERS_FILE_PATH="members-sr-default.json"
+SR_sangRoyaleClan_MEMBERS_OVERRIDEN="members-sr-overriden.json"
 
 #Define potential players to enter
 player_pierreJL=Player("PierreJL", 4307, 4428)
@@ -13,22 +14,12 @@ player_Boulad=Player("Boulad", 4000, 4000)
 
 #--4665
 
-#Import mechanism
-defaultClanImporter = ClanImporter(SR_CLAN_MEMBERS_DEFAULT, SR_CLAN_MEMBERS_OVERRIDEN)
-defaultClanExporter = ClanExporter()
-clansImported=defaultClanImporter.returnValues()
-clan = Clan(clansImported[0], clansImported[1])
-
-#defaultClanExporter.exportDefaultClanMaxTrInfo(clan)
-
+sangRoyaleClan=Clan.loadFromFile(SR_CLAN_MEMBERS_FILE_PATH)
 #Add players
-clan.addMember(player_pierreJL)
-clan.addMember(player_Chi)
-clan.addMember(player_Kebab)
-clan.addMember(player_Boulad)
-#clan.addMember(player_Sky)
+sangRoyaleClan.addMember(player_pierreJL)
+sangRoyaleClan.addMember(player_Chi)
+sangRoyaleClan.addMember(player_Kebab)
+sangRoyaleClan.addMember(player_Boulad)
+#sangRoyaleClan.addMember(player_Sky)
 
-
-clan.resetTrophies()
-print("Norm " + str(clan.calculateOverriddenClanScore()))
-clan.printDefault()
+sangRoyaleClan.printDefault()

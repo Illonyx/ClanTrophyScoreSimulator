@@ -1,13 +1,9 @@
 import json
-import collections
-from clanmodel import *
 
+class ClanPersistance:
 
-class ClanImporter:
-
-	def __init__(self, defaultPath, overridenPath):
-		self.defaultClan=self.readPlayerDataFromFile(defaultPath)
-		self.overriddenClan=self.manageOverridenClan(overridenPath, self.defaultClan)
+	def __init__(self, path):
+		self.path = path
 
 	def importFile(self, fileName):
 		fo = open(fileName)
@@ -17,33 +13,18 @@ class ClanImporter:
 		fo.close()
 		return line
 
-	def readPlayerDataFromFile(self, fileName):
+	def loadClan(self):
 		playersInClan=[]
 		try:
-			strFile=self.importFile(fileName)
+			strFile=self.importFile(self.path)
 			listDic=json.loads(strFile)
-			for dic in listDic:
-				#TODO: there should be a better way..
-				if dic["best"] < dic["trophies"]:
-					print("Erreur de saisie pour le joueur : " + dic["name"])
-
-				player=Player(dic["name"], dic["trophies"], dic["best"])
-				playersInClan.append(player)
-			playersInClan.sort(key = operator.attrgetter('trophies'), reverse=True)
+			
 		except FileNotFoundError:
 			print("File with " + str(fileName) + " not found")
 
-		return playersInClan
+		return listDic
 
-	def manageOverridenClan(self, overridenFileName, defaultValue):
-		overridenClan=self.readPlayerDataFromFile(overridenFileName)
-		if len(overridenClan) == 0:
-			overridenClan = defaultValue
-		return overridenClan
-
-	def returnValues(self):
-		return (self.defaultClan, self.overriddenClan)
-
+"""
 
 class ClanExporter:
 
@@ -85,3 +66,4 @@ class ClanExporter:
 		#Export all members
 
 	#def exportOverridenClanInfo(self, overridenClan):
+"""

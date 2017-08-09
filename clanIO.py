@@ -13,16 +13,30 @@ class ClanPersistance:
 		fo.close()
 		return line
 
+	def saveFile(self, fileName, fileContent):
+		fo = open(fileName, "w")
+		fo.write(fileContent)
+		fo.close()
+
 	def loadClan(self):
-		playersInClan=[]
 		try:
 			strFile=self.importFile(self.path)
-			listDic=json.loads(strFile)
+			jsonObject=json.loads(strFile)
 			
 		except FileNotFoundError:
 			print("File with " + str(fileName) + " not found")
 
-		return listDic
+		return jsonObject
+
+	def saveClan(self,clan):
+		try:
+			clanStr = json.dumps(clan)
+			self.saveFile(self.path, clanStr)
+
+		except FileNotFoundError:
+				print("File with " + str(fileName) + " not found")
+
+
 
 """
 

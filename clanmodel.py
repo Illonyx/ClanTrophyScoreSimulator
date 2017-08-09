@@ -11,12 +11,19 @@ class Player(object):
 	def mappingIn(dic):
 		name=dic["name"]
 		trophies=dic["trophies"]
-		if dic["best"] != None or dic["best"] < dic["trophies"]:
+		if dic["best"] == None or dic["best"] < dic["trophies"]:
 				print("Erreur de saisie pour le joueur : " + dic["name"])
 				best=trophies
 		else:
 			best=dic["best"]
 		return Player(name,trophies,best)
+
+	def mappingOut(player):
+		dicToReturn={}
+		dicToReturn["name"]=player.name
+		dicToReturn["trophies"]=player.trophies
+		dicToReturn["best"]=player.best
+		return dicToReturn
 
 	def toString(self):
 		return "Name :" + str(self.name) + " Trophies : " + str(self.trophies)
@@ -26,42 +33,91 @@ class Player(object):
 
 class Clan:
 
-	def __init__(self, clan, maxClanSize=50):
-		self.clan=clan
+	def __init__(self, name, idC, editionDate, additionalInfo, members, maxClanSize=50):
+		self.name=name
+		self.id=idC
+		self.editionDate=editionDate
+		self.additionalInfo=additionalInfo
+		self.members=members
 		self.maxClanSize=maxClanSize
+
 
 	def loadFromFile(path):
 		clanPersistance=ClanPersistance(path)
 		return Clan.mappingIn(clanPersistance.loadClan())
+
+	def saveToFile(path, clan):
+		clanPersistance=ClanPersistance(path)
+		clanPersistance.saveClan(Clan.mappingOut(clan))
+
+		
 		
 	#Mapping in constructor
-	def mappingIn(listDic):
+	def mappingIn(jsonString):
+		clanName=jsonString["name"]
+		clanEditionDate=jsonString["editionDate"]
+		clanId=jsonString["id"]
+		clanAdditionalInfo=jsonString["additionalInfo"]
+
 		players=[]
-		for dic in listDic:
+		for dic in jsonString["members"]:
 			player=Player.mappingIn(dic)
 			players.append(player)
 			players.sort(key = operator.attrgetter('trophies'), reverse=True)
-		return Clan(players,50)
+		return Clan(clanName, clanId, clanEditionDate, clanAdditionalInfo, players)
+
+	#Mapping out constructor
+	def mappingOut(clan):
+		dicToReturn = {}
+		dicToReturn["name"]=clan.name
+		dicToReturn["id"]=clan.id
+		dicToReturn["editionDate"]=clan.editionDate
+		dicToReturn["additionalInfo"]=clan.additionalInfo
+
+		#manage members
+		members=[]
+		for member in clan.members:
+			memberDic=Player.mappingOut(member)
+			members.append(memberDic)
+
+		dicToReturn["members"]=members
+
+		return dicToReturn
+
+
+
+		return dicsToReturn
+
 
 #---------------------------------------------	
 #--- Clan general methods
 #---------------------------------------------
 
-	def returnResetValue(self, trophyValue):
-		if trophyValue < 4000:
+	def returnResetValue(trophyValue):
+		if trophyValue >= 0 and trophyValue < 4000:
 			return trophyValue
 		elif trophyValue >= 4000 and trophyValue < 4900:
 			return 4000
-		elif trophyValue >= 4900:
+		elif trophyValue >= 4900 and trophyValue < 5800:
 			return 4300
-		else:
+		elif trophyValue >= 5800 and trophyValue < 6700:
 			return 4600
+		elif trophyValue >= 6700:
+			return 4900
+		else:
+			print("Negative Trophy Value or superior at 6700! Should not happen!")
+			return None
+
+	def resetTrophies(self):
+		#Allows trophies to be reseted for all players
+		for player in self.members:
+			player.trophies=self.returnResetValue(player.trophies)
 
 	def calculateClanScore(self):
 		index=0
 		score=0
 
-		for player in self.clan:
+		for player in self.members:
 			index += 1
 			trophiesToConsider=player.trophies
 
@@ -77,21 +133,20 @@ class Clan:
 				score += 3/100*trophiesToConsider
 			else:
 				print("Should not be called")
-				11
 		return score
 
 #-------------------------------------------------------
 #--- Player manipulation 
 #-------------------------------------------------------
 	def addMember(self, player):
-		#50th is kicked?
-		if len(self.clan) == self.maxClanSize:
-			self.clan.remove(self.clan[-1])
-		self.clan.append(player)
-		self.clan.sort(key = operator.attrgetter('trophies'), reverse=True)
+		#50th is kicked
+		if len(self.members) == self.maxClanSize:
+			self.members.remove(self.members[-1])
+		self.members.append(player)
+		self.members.sort(key = operator.attrgetter('trophies'), reverse=True)
 
 	def findPlayer(self, playerName):
-		for player in self.clan:
+		for player in self.members:
 			if player.name == playerName:
 				return player
 		print("Player with following name has not been found ! :" + playerName)
@@ -103,14 +158,14 @@ class Clan:
 			foundPlayer.trophies=trophyValue
 			if trophyValue > foundPlayer.best: 
 				foundPlayer.best=trophyValue
-			self.clan.sort(key = operator.attrgetter('trophies'), reverse=True)
+			self.members.sort(key = operator.attrgetter('trophies'), reverse=True)
 
 	#-----------------------------------------------------
 	#--- Printers
 	#-----------------------------------------------------
 
 	def printDefault(self):
-		copy=list(self.clan)
+		copy=list(self.members)
 		copy.sort(key=operator.attrgetter('trophies'), reverse=True)
 		rank=0
 		for player in copy:
@@ -118,18 +173,9 @@ class Clan:
 			print(str(rank) + ". " + player.toString())
 
 	def printBest(self):
-		copy=list(self.clan)
+		copy=list(self.members)
 		copy.sort(key=operator.attrgetter('best'), reverse=True)
 		rank=0
 		for player in copy:
 			rank += 1
 			print(str(rank) + ". " + player.toStringBest())
-
-"""
-class EditableClan(Clan):
-def resetTrophies(self):
-		#Allows trophies to be reseted for all players
-		for player in self.overriddenClan:
-			player.trophies=self.returnResetValue(player.trophies)
-			
-	"""

@@ -1,9 +1,11 @@
 from clanIO import *
 from clanmodel import *
 
-#sangRoyaleClans path
-SR_CLAN_MEMBERS_FILE_PATH="members-sr-default.json"
-SR_sangRoyaleClan_MEMBERS_OVERRIDEN="members-sr-overriden.json"
+#Path
+SR_CLAN_MEMBERS_FILE_PATH="Data/SangRoyale/members-sr-default.json"
+SR_CLAN_MEMBERS_EXP_FILE_PATH="Data/SangRoyale/members-sr-example.json"
+PIMANIACS_MEMBERS_FILE_PATH="Data/LesPimaniacs/members-pims.json"
+
 
 #Define potential players to enter
 player_pierreJL=Player("PierreJL", 4307, 4428)
@@ -21,5 +23,7 @@ sangRoyaleClan.addMember(player_Chi)
 sangRoyaleClan.addMember(player_Kebab)
 sangRoyaleClan.addMember(player_Boulad)
 #sangRoyaleClan.addMember(player_Sky)
+
+Clan.saveToFile(SR_CLAN_MEMBERS_EXP_FILE_PATH, sangRoyaleClan)
 
 sangRoyaleClan.printDefault()

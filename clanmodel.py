@@ -31,7 +31,7 @@ class Player(object):
 	def toStringBest(self):
 		return "Name :" + str(self.name) + " Record : " + str(self.best)
 
-class Clan:
+class Clan(object):
 
 	def __init__(self, name, idC, editionDate, additionalInfo, members, maxClanSize=50):
 		self.name=name
@@ -113,13 +113,15 @@ class Clan:
 		for player in self.members:
 			player.trophies=self.returnResetValue(player.trophies)
 
-	def calculateClanScore(self):
+	def calculateClanScore(self, considerateBestTr=False):
 		index=0
 		score=0
 
 		for player in self.members:
-			index += 1
 			trophiesToConsider=player.trophies
+			index += 1
+			if considerateBestTr:
+				trophiesToConsider=player.best
 
 			if index >=1 and index <=10:
 				score += 50/100*trophiesToConsider
@@ -152,6 +154,8 @@ class Clan:
 		print("Player with following name has not been found ! :" + playerName)
 		return None
 
+
+	#TODO : Maybe a update player method should be better..
 	def updatePlayerTrophies(self, playerName, trophyValue):
 		foundPlayer = self.findPlayer(playerName)
 		if foundPlayer != None:
@@ -159,6 +163,16 @@ class Clan:
 			if trophyValue > foundPlayer.best: 
 				foundPlayer.best=trophyValue
 			self.members.sort(key = operator.attrgetter('trophies'), reverse=True)
+
+
+	#-----------------------------------------------------
+	# --- Clan manipulation
+	#-----------------------------------------------------
+
+	def mergeWith(otherClan):
+		self.additionalInfo = "Is the result of merge of " + self.name + " and "+ otherClan.name
+		for member in otherClan.members:
+			self.addMember(member)
 
 	#-----------------------------------------------------
 	#--- Printers
@@ -179,3 +193,5 @@ class Clan:
 		for player in copy:
 			rank += 1
 			print(str(rank) + ". " + player.toStringBest())
+
+

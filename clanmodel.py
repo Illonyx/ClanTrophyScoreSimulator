@@ -1,5 +1,7 @@
 import operator
+import datetime
 from clanIO import *
+from stats import *
 
 class Player(object):
 	def __init__(self, name, trophies, best):
@@ -49,6 +51,19 @@ class Clan(object):
 	def saveToFile(path, clan):
 		clanPersistance=ClanPersistance(path)
 		clanPersistance.saveClan(Clan.mappingOut(clan))
+
+	def loadFromStatsRoyale(id):
+		basicInfos=getClan(id, True)
+		print("Basic clan data for " + basicInfos["name"] + "downloaded")
+		memberInfos=getClanMembers(id, True)
+		print("Member clan data for " + basicInfos["name"] + "downloaded")
+		playersList=[]
+		for player in memberInfos:
+			#profile=getProfile(player['tag'], True)
+			playersList.append(Player(player["username"], player["trophies"], player["trophies"]))
+
+		return Clan(basicInfos["name"], id, str(datetime.datetime.now()), "",  playersList) 
+
 
 		
 		
@@ -169,10 +184,12 @@ class Clan(object):
 	# --- Clan manipulation
 	#-----------------------------------------------------
 
-	def mergeWith(otherClan):
+	def mergeWith(self, otherClan):
 		self.additionalInfo = "Is the result of merge of " + self.name + " and "+ otherClan.name
-		for member in otherClan.members:
-			self.addMember(member)
+		self.members.extend(otherClan.members)
+		self.members.sort(key = operator.attrgetter('trophies'), reverse=True)
+		self.members=self.members[0:50]
+		
 
 	#-----------------------------------------------------
 	#--- Printers
